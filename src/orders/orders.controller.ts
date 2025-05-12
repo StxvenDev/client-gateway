@@ -3,6 +3,7 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { ORDER_SERVICE } from 'src/config';
 import { CreateOrderDto, PaginationOrderDto } from './dto';
 import { catchError } from 'rxjs';
+import { StatusDto } from './dto/status.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -28,6 +29,17 @@ export class OrdersController {
     .pipe(
       catchError(err => {throw new RpcException(err)})
     );
+  }
+
+  @Patch(':id')
+  changeStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() statusDto: StatusDto,
+  ){
+    return this.ordersClient.send({cmd: 'updateOrder'}, {id, ...statusDto})
+    .pipe(
+      catchError(err => {throw new RpcException(err)})
+    )
   }
 
 }
